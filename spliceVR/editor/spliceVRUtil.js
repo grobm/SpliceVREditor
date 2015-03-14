@@ -15,6 +15,9 @@ GNU General Public License for more details.
 
 (function(global) {
 	SpliceVRUtil = function() {
+		this.projMatrix = mat4.create();
+		mat4.identity(this.projMatrix);
+		mat4.perspective(this.projMatrix, Math.PI/2.0, 1.0, .1, 100);
 	};
 	SpliceVRUtil.prototype.createTexBuffer = function(buffer, bufferName, bufferVer, indBuffer, indBufferName, inds) {
 		buffer.displayName = bufferName;
@@ -34,14 +37,10 @@ GNU General Public License for more details.
 		gl.bindTexture(gl.TEXTURE_2D, null);
 	};
 	SpliceVRUtil.prototype.drawRectTex = function(modelMatrix, buffer, indBuffer, rectTex) {
-		var projMatrix = mat4.create();
 		var a_xyz = glProgram.attributes['a_xyz'];
 		var a_uv = glProgram.attributes['a_uv'];
-		mat4.identity(projMatrix);
 
-		mat4.perspective(projMatrix, Math.PI/2.0, 1.0, .1, 100);
-
-		gl.uniformMatrix4fv(glProgram.uniforms['u_projectionMatrix'], false, projMatrix);
+		gl.uniformMatrix4fv(glProgram.uniforms['u_projectionMatrix'], false, this.projMatrix);
 		gl.uniformMatrix4fv(glProgram.uniforms['u_modelViewMatrix'], false, modelMatrix);
 		gl.enableVertexAttribArray(a_xyz);
 		gl.enableVertexAttribArray(a_uv);
@@ -55,11 +54,8 @@ GNU General Public License for more details.
 		gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 	};
 	SpliceVRUtil.prototype.drawPolygon = function(modelMatrix, vers, inds, rectTex) {
-		var projMatrix = mat4.create();
 		var a_xyz = glProgram.attributes['a_xyz'];
 		var a_uv = glProgram.attributes['a_uv'];
-		mat4.identity(projMatrix);
-		mat4.perspective(projMatrix, Math.PI/2.0, 1.0, .1, 100);
 
 		var buffer = gl.createBuffer();
 		var indBuffer = gl.createBuffer();
@@ -68,7 +64,7 @@ GNU General Public License for more details.
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indBuffer);
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,  new Uint16Array(inds), gl.STATIC_DRAW);
 		
-		gl.uniformMatrix4fv(glProgram.uniforms['u_projectionMatrix'], false, projMatrix);
+		gl.uniformMatrix4fv(glProgram.uniforms['u_projectionMatrix'], false, this.projMatrix);
 		gl.uniformMatrix4fv(glProgram.uniforms['u_modelViewMatrix'], false, modelMatrix);
 		gl.enableVertexAttribArray(a_xyz);
 		gl.enableVertexAttribArray(a_uv);
@@ -121,28 +117,28 @@ GNU General Public License for more details.
 		for (var n = 0; n < uniformNames.length; n++)
 			this.uniforms[uniformNames[n]] = null;
 		this.gl = theGL;
-		this.program_ = this.gl.createProgram();
-		this.program_.displayName = displayName;
+		this.program = this.gl.createProgram();
+		this.program.displayName = displayName;
 		var vertexShader = this.gl.createShader(this.gl.VERTEX_SHADER);
 		vertexShader.displayName = displayName + ':VS';
 		this.gl.shaderSource(vertexShader, vertexShaderSource);
-		this.gl.attachShader(this.program_, vertexShader);
+		this.gl.attachShader(this.program, vertexShader);
 		var fragmentShader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
 		fragmentShader.displayName = displayName + ':FS';
 		this.gl.shaderSource(fragmentShader, fragmentShaderSource);
-		this.gl.attachShader(this.program_, fragmentShader);
+		this.gl.attachShader(this.program, fragmentShader);
 	};
 	SpliceVRUtil.Program.prototype.beginLinking = function() {
-		var shaders = this.gl.getAttachedShaders(this.program_);
+		var shaders = this.gl.getAttachedShaders(this.program);
 		for (var n = 0; n < shaders.length; n++)
 			this.gl.compileShader(shaders[n]);
-		this.gl.linkProgram(this.program_);
+		this.gl.linkProgram(this.program);
 	};
 	SpliceVRUtil.Program.prototype.use = function() {
-		this.gl.useProgram(this.program_);
+		this.gl.useProgram(this.program);
 	};
 	SpliceVRUtil.Program.prototype.endLinking = function() {
-		var shaders = this.gl.getAttachedShaders(this.program_);
+		var shaders = this.gl.getAttachedShaders(this.program);
 		for (var n = 0; n < shaders.length; n++) {
 			var shaderName = shaders[n].displayName;
 			var shaderInfoLog = this.gl.getShaderInfoLog(shaders[n]);
@@ -153,16 +149,16 @@ GNU General Public License for more details.
 				SpliceVR.log('Shader ' + shaderName + ' compilation warnings:\n' +shaderInfoLog);
 		}
 
-		var programName = this.program_.displayName;
-		var programInfoLog = this.gl.getProgramInfoLog(this.program_);
-		var linked = !!this.gl.getProgramParameter(this.program_, this.gl.LINK_STATUS);
+		var programName = this.program.displayName;
+		var programInfoLog = this.gl.getProgramInfoLog(this.program);
+		var linked = !!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS);
 		if (!linked)
 			throw 'Program ' + programName + ' link errors:\n' + programInfoLog;
 		else if (programInfoLog && programInfoLog.length)
 			SpliceVR.log('Program ' + programName + ' link warnings:\n' +programInfoLog);
 		for (var attribName in this.attributes)
-			this.attributes[attribName] = this.gl.getAttribLocation(this.program_, attribName);
+			this.attributes[attribName] = this.gl.getAttribLocation(this.program, attribName);
 		for (var uniformName in this.uniforms)
-			this.uniforms[uniformName] = this.gl.getUniformLocation(this.program_, uniformName);
+			this.uniforms[uniformName] = this.gl.getUniformLocation(this.program, uniformName);
 	};
 })(window);
