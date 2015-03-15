@@ -44,8 +44,6 @@ GNU General Public License for more details.
 		renderUtil.createTexBuffer(this.buffer, 'nodeVertexBuffer', this.ver, this.indexBuffer, 'nodeIndexBuffer', this.ind);
 		this.tex = gl.createTexture();
 		this.update();
-
-		this.rot = 0.0;
 	};
 	SpliceVRNode.prototype.update = function() {
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

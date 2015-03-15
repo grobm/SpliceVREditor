@@ -131,6 +131,8 @@ GNU General Public License for more details.
 			switch (event.keyCode) {
 				case 86: mono = !mono; break;
 				case 70: this.fullscreen(); break;
+				case 83: spliceLEX.saveLEX();break;
+				case 79: spliceLEX.openLEX();break;
 			}
 		}
 		renderFrame.resized = true;
