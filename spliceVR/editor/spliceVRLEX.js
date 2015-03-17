@@ -51,11 +51,14 @@ GNU General Public License for more details.
 				renderNodes[n].y = parseFloat(nodeY[0].childNodes[0].nodeValue);
 			}
 			for(var n = 0; n < lexNodes.length; n++){
-				var lexExits = lexNodes[n].getElementsByTagName('exit');
-				for(var i = 0; i < lexExits.length; i++){
-					var lexExitID = lexExits[i].getElementsByTagName('id');
-					var k = parseInt(lexExitID[0].childNodes[0].nodeValue) - 65536;
-					renderLinks.push(new SpliceVRLink(renderNodes[n],renderNodes[k]));
+				var lexEvents = lexNodes[n].getElementsByTagName('event');
+				for(var i = 0; i < lexEvents.length; i++){
+					var lexExits = lexEvents[i].getElementsByTagName('exit');
+					for(var j = 0; j < lexExits.length; j++){
+						var lexExitID = lexExits[j].getElementsByTagName('id');
+						var k = parseInt(lexExitID[0].childNodes[0].nodeValue) - 65536;
+						renderLinks.push(new SpliceVRLink(renderNodes[n],renderNodes[k]));
+					}
 				}
 			}
 		}
@@ -73,31 +76,28 @@ GNU General Public License for more details.
 			lexStr += "\n\t\t\t<id>"+(65536+n)+"</id>";
 			lexStr += "\n\t\t\t<x>"+(renderNodes[n].x)+"</x>";
 			lexStr += "\n\t\t\t<y>"+(renderNodes[n].y)+"</y>";
-			lexStr += "\n\t\t\t<media>";
-			lexStr += "\n\t\t\t</media>";
 
-			lexStr += "\n\t\t\t<events>";
 			for(var i = 0; i < renderLinks.length; i++){
+				lexStr += "\n\t\t\t<event>";
 				if(renderLinks[i].node1 == renderNodes[n]){
-					lexStr += "\n\t\t\t\t<keyup>";
-					lexStr += "\n\t\t\t\t\t<value>13</value>";
-					lexStr += "\n\t\t\t\t\t<actions>";
-					lexStr += "\n\t\t\t\t\t\t<exit>";
+					lexStr += "\n\t\t\t\t<triggers>";
+					lexStr += "\n\t\t\t\t\t<keyup>";
+					lexStr += "\n\t\t\t\t\t\t<value>13</value>";
+					lexStr += "\n\t\t\t\t\t</keyup>";
+					lexStr += "\n\t\t\t\t</triggers>";
+					lexStr += "\n\t\t\t\t<actions>";
+					lexStr += "\n\t\t\t\t\t<exit>";
 					var j = 0;
 					for(j = 0; j < renderNodes.length; j++){
 						if(renderLinks[i].node2 == renderNodes[j])
 							break;
 					}
-					lexStr += "\n\t\t\t\t\t\t\t<id>"+(65536+j)+"</id>";
-					lexStr += "\n\t\t\t\t\t\t</exit>";
-					lexStr += "\n\t\t\t\t\t</actions>";
-					lexStr += "\n\t\t\t\t</keyup>";
+					lexStr += "\n\t\t\t\t\t\t<id>"+(65536+j)+"</id>";
+					lexStr += "\n\t\t\t\t\t</exit>";
+					lexStr += "\n\t\t\t\t</actions>";
 				}
+				lexStr += "\n\t\t\t</event>";
 			}
-			lexStr += "\n\t\t\t</events>";
-
-			lexStr += "\n\t\t\t<timeline>";
-			lexStr += "\n\t\t\t</timeline>";
 			lexStr += "\n\t\t</node>";
 		}
 		lexStr += "\n\t\t<global>";
