@@ -27,7 +27,7 @@ GNU General Public License for more details.
 	var renderMenu;
 	var renderAssets;
 	var renderAdd;
-	var spliceLEX;
+	var svrFile;
 	var input;
 	var gl;
 	var glProgram;
@@ -56,7 +56,7 @@ GNU General Public License for more details.
 		renderAdd = new SpliceVRAdd();
 		input = new SpliceVRInput();
 
-		spliceLEX = new SpliceVRLEX();
+		svrFile = new SpliceVRFile();
 		
 		var updateThread = setInterval(function() {update();}, 100);
 		renderThread = requestAnimationFrame(render);
