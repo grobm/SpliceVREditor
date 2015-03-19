@@ -41,24 +41,18 @@ GNU General Public License for more details.
 		xhttp.open('GET', this.svr, false);
 		try{
 			xhttp.send();
-			var svrFile = xhttp.responseXML;
-			var svrNodes = svrFile.getElementsByTagName('node');
+  			var svrFile = JSON.parse(xhttp.responseText);
+  			var svrNodes = svrFile.svr.nodes;
 			for(var n = 0; n < svrNodes.length; n++){
 				renderNodes.push(new SpliceVRNode());
-				var nodeX = svrNodes[n].getElementsByTagName('x');
-				renderNodes[n].x = parseFloat(nodeX[0].childNodes[0].nodeValue);
-				var nodeY = svrNodes[n].getElementsByTagName('y');
-				renderNodes[n].y = parseFloat(nodeY[0].childNodes[0].nodeValue);
+				renderNodes[n].x = svrNodes[n].x;
+				renderNodes[n].y = svrNodes[n].y;
 			}
 			for(var n = 0; n < svrNodes.length; n++){
-				var svrEvents = svrNodes[n].getElementsByTagName('event');
-				for(var i = 0; i < svrEvents.length; i++){
-					var svrExits = svrEvents[i].getElementsByTagName('exit');
-					for(var j = 0; j < svrExits.length; j++){
-						var svrExitID = svrExits[j].getElementsByTagName('id');
-						var k = parseInt(svrExitID[0].childNodes[0].nodeValue) - 65536;
-						renderLinks.push(new SpliceVRLink(renderNodes[n],renderNodes[k]));
-					}
+				for(var i = 0; i < svrNodes[n].events.length; i++){
+					var svrExit = svrNodes[n].events[i].actions[0].exit;
+					var k = svrExit.id-65536;
+					renderLinks.push(new SpliceVRLink(renderNodes[n],renderNodes[k]));
 				}
 			}
 		}
@@ -69,42 +63,60 @@ GNU General Public License for more details.
 	};
 
 	SpliceVRFile.prototype.saveSVR = function() {
-		var svrStr = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-        svrStr += "\n\t<svr>";
-		for (var n = 0; n < renderNodes.length; n++){
-			svrStr += "\n\t\t<node>";
-			svrStr += "\n\t\t\t<id>"+(65536+n)+"</id>";
-			svrStr += "\n\t\t\t<x>"+(renderNodes[n].x)+"</x>";
-			svrStr += "\n\t\t\t<y>"+(renderNodes[n].y)+"</y>";
+		var svrStr = "{";
+        svrStr += "\n\t\"svr\" : {";
 
+		svrStr += "\n\t\t\"nodes\" : [";
+		for (var n = 0; n < renderNodes.length; n++){
+			svrStr += "\n\t\t\t{";
+			svrStr += "\n\t\t\t\t\"id\" : "+(65536+n)+",";
+			svrStr += "\n\t\t\t\t\"x\" : "+(renderNodes[n].x)+",";
+			svrStr += "\n\t\t\t\t\"y\" : "+(renderNodes[n].y)+",";
+
+			svrStr += "\n\t\t\t\t\"events\" : [";
+			var c = 0;
 			for(var i = 0; i < renderLinks.length; i++){
-				svrStr += "\n\t\t\t<event>";
+
 				if(renderLinks[i].node1 == renderNodes[n]){
-					svrStr += "\n\t\t\t\t<triggers>";
-					svrStr += "\n\t\t\t\t\t<keyup>";
-					svrStr += "\n\t\t\t\t\t\t<value>13</value>";
-					svrStr += "\n\t\t\t\t\t</keyup>";
-					svrStr += "\n\t\t\t\t</triggers>";
-					svrStr += "\n\t\t\t\t<actions>";
-					svrStr += "\n\t\t\t\t\t<exit>";
 					var j = 0;
 					for(j = 0; j < renderNodes.length; j++){
 						if(renderLinks[i].node2 == renderNodes[j])
 							break;
 					}
-					svrStr += "\n\t\t\t\t\t\t<id>"+(65536+j)+"</id>";
-					svrStr += "\n\t\t\t\t\t</exit>";
-					svrStr += "\n\t\t\t\t</actions>";
-				}
-				svrStr += "\n\t\t\t</event>";
-			}
-			svrStr += "\n\t\t</node>";
-		}
-		svrStr += "\n\t\t<global>";
-		svrStr += "\n\t\t</global>";
-        svrStr += "\n\t</svr>";
+					if(c!= 0){
+						svrStr += ",";
+					}
+					c++;
 
-        var blob = new Blob([svrStr], {type : 'text/xml'});
+					svrStr += "\n\t\t\t\t\t{";
+					svrStr += "\n\t\t\t\t\t\t\"triggers\" : [";
+
+					svrStr += "\n\t\t\t\t\t\t\t{";
+					svrStr += "\n\t\t\t\t\t\t\t\t\"keyup\" : {\"value\" : 64}";
+					svrStr += "\n\t\t\t\t\t\t\t}";
+
+					svrStr += "\n\t\t\t\t\t\t],";
+					svrStr += "\n\t\t\t\t\t\t\"actions\" : [";
+
+					svrStr += "\n\t\t\t\t\t\t\t{";
+					svrStr += "\n\t\t\t\t\t\t\t\t\"exit\" : {\"id\" : "+(65536+j)+"}";
+					svrStr += "\n\t\t\t\t\t\t\t}";
+
+					svrStr += "\n\t\t\t\t\t\t]";
+					svrStr += "\n\t\t\t\t\t}";
+				}
+			}
+			svrStr += "\n\t\t\t\t]";
+			svrStr += "\n\t\t\t}";
+			if(n != renderNodes.length-1){
+				svrStr += ",";
+			}
+		}
+		svrStr += "\n\t\t]";
+        svrStr += "\n\t}";
+        svrStr += "\n}";
+		
+        var blob = new Blob([svrStr], {type : 'application/json'});
         var downloadLink = document.createElement("a");
 		downloadLink.download = "export.svr";
 		if (window.webkitURL != null)
