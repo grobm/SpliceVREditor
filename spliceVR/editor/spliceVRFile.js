@@ -63,58 +63,40 @@ GNU General Public License for more details.
 	};
 
 	SpliceVRFile.prototype.saveSVR = function() {
-		var svrStr = "{";
-        svrStr += "\n\t\"svr\" : {";
-
-		svrStr += "\n\t\t\"nodes\" : [";
+		var exportSVR = new Object();
+		exportSVR.svr = new Object();
+		exportSVR.svr.nodes = [];
 		for (var n = 0; n < renderNodes.length; n++){
-			svrStr += "\n\t\t\t{";
-			svrStr += "\n\t\t\t\t\"id\" : "+(65536+n)+",";
-			svrStr += "\n\t\t\t\t\"x\" : "+(renderNodes[n].x)+",";
-			svrStr += "\n\t\t\t\t\"y\" : "+(renderNodes[n].y)+",";
-
-			svrStr += "\n\t\t\t\t\"events\" : [";
-			var c = 0;
+			var node = new Object();
+			node.id = (65536+n);
+			node.x = (renderNodes[n].x);
+			node.y = (renderNodes[n].y);
+			node.events = [];
 			for(var i = 0; i < renderLinks.length; i++){
-
 				if(renderLinks[i].node1 == renderNodes[n]){
 					var j = 0;
 					for(j = 0; j < renderNodes.length; j++){
+
 						if(renderLinks[i].node2 == renderNodes[j])
 							break;
 					}
-					if(c!= 0){
-						svrStr += ",";
-					}
-					c++;
-
-					svrStr += "\n\t\t\t\t\t{";
-					svrStr += "\n\t\t\t\t\t\t\"triggers\" : [";
-
-					svrStr += "\n\t\t\t\t\t\t\t{";
-					svrStr += "\n\t\t\t\t\t\t\t\t\"keyup\" : {\"value\" : 64}";
-					svrStr += "\n\t\t\t\t\t\t\t}";
-
-					svrStr += "\n\t\t\t\t\t\t],";
-					svrStr += "\n\t\t\t\t\t\t\"actions\" : [";
-
-					svrStr += "\n\t\t\t\t\t\t\t{";
-					svrStr += "\n\t\t\t\t\t\t\t\t\"exit\" : {\"id\" : "+(65536+j)+"}";
-					svrStr += "\n\t\t\t\t\t\t\t}";
-
-					svrStr += "\n\t\t\t\t\t\t]";
-					svrStr += "\n\t\t\t\t\t}";
+					var anEvent = new Object();
+					anEvent.triggers = [];
+					var trigger = new Object();
+					trigger.keyup = new Object();
+					trigger.keyup.value = 64;
+					anEvent.triggers.push(trigger);
+					anEvent.actions = [];
+					var action = new Object();
+					action.exit = new Object();
+					action.exit.id = (65536+j);
+					anEvent.actions.push(action);
+					node.events.push(anEvent);
 				}
 			}
-			svrStr += "\n\t\t\t\t]";
-			svrStr += "\n\t\t\t}";
-			if(n != renderNodes.length-1){
-				svrStr += ",";
-			}
+			exportSVR.svr.nodes.push(node);
 		}
-		svrStr += "\n\t\t]";
-        svrStr += "\n\t}";
-        svrStr += "\n}";
+		var svrStr = JSON.stringify(exportSVR, null, "\t");
 		
         var blob = new Blob([svrStr], {type : 'application/json'});
         var downloadLink = document.createElement("a");
