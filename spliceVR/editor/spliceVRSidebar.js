@@ -79,11 +79,11 @@ GNU General Public License for more details.
 	};
 	SpliceVRSidebar.prototype.pointEvent = function(){
 		if(this.show && (this.pressed || this.contains(renderFrame.hudX, renderFrame.hudY))){
-			if(renderFrame.touch == 0)
+			if(renderFrame.type == EVENT_MOUSE)
 				document.body.style.cursor = 'pointer';
-			if(renderFrame.mode == 1)
+			if(renderFrame.mode == EVENT_DOWN)
 				this.pressed = true;
-			else if(renderFrame.mode == 3)
+			else if(renderFrame.mode == EVENT_UP)
 				this.pressed = false;
 			return true;
 		}

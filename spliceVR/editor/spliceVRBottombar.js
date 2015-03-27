@@ -78,13 +78,13 @@ GNU General Public License for more details.
 	};
 	SpliceVRBottombar.prototype.pointEvent = function(){
 		if(this.show && (this.pressed || this.contains(renderFrame.hudX, renderFrame.hudY))){
-			if(renderFrame.touch == 0)
+			if(renderFrame.type == EVENT_MOUSE)
 				document.body.style.cursor = 'pointer';
-			if(renderFrame.mode == 1){
+			if(renderFrame.mode == EVENT_DOWN){
 				this.pressed = true;
 				this.videoSelected = (((renderFrame.cX-renderFrame.rect.left-this.videoScrollX))/200) | 0;
 			}
-			else if(renderFrame.mode == 3){
+			else if(renderFrame.mode == EVENT_UP){
 				if(this.videoSelected >= 0){
 					for (var i = 0; i < renderNodes.length; i++) {
 						if(renderNodes[i].contains(renderFrame.adjX,renderFrame.adjY)){

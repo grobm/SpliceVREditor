@@ -58,7 +58,6 @@ GNU General Public License for more details.
 			this.ctx.fillStyle = '#303030';
 			this.ctx.fillRect(82*i+40,370,72, 32);
 		}
-
 		gl.bindTexture(gl.TEXTURE_2D, this.tex);
 		renderUtil.texUpdate(this.canvas);
 	};
@@ -68,19 +67,16 @@ GNU General Public License for more details.
 		mat4.identity(modelViewMatrix);
 		var nodeX =((this.x-renderFrame.transX));
 		var nodeY = ((this.y-renderFrame.transY));
-		
 		mat4.scale(modelViewMatrix,modelViewMatrix,[renderFrame.scaleX, renderFrame.scaleY,1.0]);
 		mat4.multiply(modelViewMatrix, modelViewMatrix, rotation);
 		mat4.translate(modelViewMatrix,modelViewMatrix,[nodeX,nodeY,renderFrame.zoom]);
-
-
 		renderUtil.drawRectTex(modelViewMatrix, this.buffer, this.indexBuffer, this.tex);	
 	};
 	SpliceVRNode.prototype.pointEvent = function(){
 		if(this.pressed || this.contains(renderFrame.adjX, renderFrame.adjY)){
-			if(renderFrame.touch == 0)
+			if(renderFrame.type == EVENT_MOUSE)
 				document.body.style.cursor = 'pointer';
-			if(renderFrame.mode == 1){
+			if(renderFrame.mode == EVENT_DOWN){
 				if(renderFrame.adjX > this.x+0.18 && renderFrame.adjY < this.y+0.04 && renderFrame.adjY > this.y-0.04)
 					linkStart = this;
 				else if(renderFrame.adjX < this.x-0.18 && renderFrame.adjY < this.y+0.04 && renderFrame.adjY > this.y-0.04)
@@ -90,11 +86,11 @@ GNU General Public License for more details.
 				else
 					this.pressed = true;
 			}
-			else if(renderFrame.mode == 2 && this.pressed){
+			else if(renderFrame.mode == EVENT_MOVE && this.pressed){
 				this.set(renderFrame.adjX, renderFrame.adjY);
 				this.moved = true;
 			}
-			else if(renderFrame.mode == 3){
+			else if(renderFrame.mode == EVENT_UP){
 				if(renderFrame.adjX < this.x-0.18 && renderFrame.adjY < this.y+0.04 && renderFrame.adjY > this.y-0.04 && linkStart != -1 && linkStart != this){
 					linkEnd = this;
 					renderLinks.push(new SpliceVRLink(linkStart,linkEnd));
@@ -117,7 +113,7 @@ GNU General Public License for more details.
 					}
 					renderNodes.splice(thisNode, 1);
 				}
-				if(this.pressed && (this.moved==0 || renderFrame.touch==1)){
+				if(this.pressed && (this.moved==0 || renderFrame.type ==EVENT_TOUCH)){
 					for(var i = 0; i < renderNodes.length; i++){
 						if(renderNodes[i] != this)
 							renderNodes[i].select = false;

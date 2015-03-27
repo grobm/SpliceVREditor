@@ -31,7 +31,7 @@ GNU General Public License for more details.
 		this.cY = 0;
 		this.rect = globalCanvas.getBoundingClientRect();
 		this.mode = 0;
-		this.touch = 0;
+		this.type = 0;
 		this.zoom = 0.0;
 		
 		this.pixelScale = 1000;
@@ -43,12 +43,12 @@ GNU General Public License for more details.
 	};
 	SpliceVRFrame.prototype.pointEvent = function(e, m, t){
 		this.mode = m;
-		this.touch = t;
-		if(this.touch == 0){
+		this.type = t;
+		if(this.type == EVENT_MOUSE){
 			this.cX = e.clientX;
 			this.cY = e.clientY;
 		}
-		else if(this.mode != 3){
+		else if(this.mode != EVENT_UP){
 			this.cX =e.touches[0].clientX;
 			this.cY =e.touches[0].clientY;
 		}

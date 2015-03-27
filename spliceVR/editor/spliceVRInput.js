@@ -21,15 +21,15 @@ GNU General Public License for more details.
 		document.addEventListener('mousewheel', function(e) {e.preventDefault(); t.scrollEvent(e); window.scrollTo(0, 0);},false);
 		document.addEventListener('DOMMouseScroll', function(e) {e.preventDefault(); t.scrollEvent(e); window.scrollTo(0, 0);},false);
 		document.addEventListener('scroll', function(e){ e.preventDefault(); t.scrollEvent(e); window.scrollTo(0, 0); },false);
-		document.addEventListener('touchstart', function(e){e.preventDefault(); t.pointEvent(e, 1, 1);  },false);
-		document.addEventListener('touchmove', function(e){ e.preventDefault(); t.pointEvent(e, 2, 1); },false);
-		document.addEventListener('touchend', function(e){ e.preventDefault(); t.pointEvent(e, 3, 1); },false);
-		document.addEventListener('touchcancel', function(e){ e.preventDefault(); t.pointEvent(e, 3, 1); },false);
-		document.addEventListener('mousedown', function(e){ t.pointEvent(e, 1, 0); },false);
-		document.addEventListener('mousemove', function(e){ t.pointEvent(e,2, 0); },false);
-		document.addEventListener('mouseup', function(e){ t.pointEvent(e,3, 0); },false);
-		document.addEventListener('keydown', function(e) {e.preventDefault(); t.key(e, 1); },false);
-		document.addEventListener('keyup', function(e) {e.preventDefault(); t.key(e, 0);}, false);
+		document.addEventListener('touchstart', function(e){e.preventDefault(); t.pointEvent(e, EVENT_DOWN, 1);  },false);
+		document.addEventListener('touchmove', function(e){ e.preventDefault(); t.pointEvent(e, EVENT_MOVE, 1); },false);
+		document.addEventListener('touchend', function(e){ e.preventDefault(); t.pointEvent(e, EVENT_UP, 1); },false);
+		document.addEventListener('touchcancel', function(e){ e.preventDefault(); t.pointEvent(e, EVENT_UP, 1); },false);
+		document.addEventListener('mousedown', function(e){ t.pointEvent(e, EVENT_DOWN, 0); },false);
+		document.addEventListener('mousemove', function(e){ t.pointEvent(e, EVENT_MOVE, 0); },false);
+		document.addEventListener('mouseup', function(e){ t.pointEvent(e, EVENT_UP, 0); },false);
+		document.addEventListener('keydown', function(e) {e.preventDefault(); t.key(e, EVENT_DOWN); },false);
+		document.addEventListener('keyup', function(e) {e.preventDefault(); t.key(e, EVENT_UP);}, false);
 	};
 	SpliceVRInput.prototype.vrDeviceCallback = function (vrdevs) {
 		for (var i = 0; i < vrdevs.length; ++i) {
@@ -70,7 +70,7 @@ GNU General Public License for more details.
 		}
 
 		for (var i = 0; i < renderLinks.length; i++) {
-			if(!pressed && renderFrame.mode == 1 && renderLinks[i].contains(renderFrame.adjX-renderFrame.transX, renderFrame.adjY-renderFrame.transY)){
+			if(!pressed && renderFrame.mode == EVENT_DOWN && renderLinks[i].contains(renderFrame.adjX-renderFrame.transX, renderFrame.adjY-renderFrame.transY)){
 				renderLinks.splice(i,1);
 				pressed = true;
 			}
@@ -79,9 +79,9 @@ GNU General Public License for more details.
 		if(!pressed){
 			if(touch == 0)
 				document.body.style.cursor = 'default';
-			if(mode == 1)
+			if(mode == EVENT_DOWN)
 				renderFrame.dragged = true;
-			else if(renderFrame.dragged && mode == 2){
+			else if(renderFrame.dragged && mode == EVENT_MOVE){
 				renderFrame.transX -= (-renderFrame.zoom+1)*(renderFrame.pixX-renderFrame.prevPixX)/(renderFrame.scaleX*globalCanvas.width*0.5);
 				renderFrame.transY -= (-renderFrame.zoom+1)*(renderFrame.pixY-renderFrame.prevPixY)/(renderFrame.scaleY*globalCanvas.height*0.5);
 			}
@@ -127,7 +127,7 @@ GNU General Public License for more details.
 		}
 	};
 	SpliceVRInput.prototype.key = function(event, value) {
-		if(value == 1){
+		if(value == EVENT_DOWN){
 			switch (event.keyCode) {
 				case 86: mono = !mono; break;
 				case 70: this.fullscreen(); break;

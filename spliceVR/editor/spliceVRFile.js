@@ -76,7 +76,6 @@ GNU General Public License for more details.
 				if(renderLinks[i].node1 == renderNodes[n]){
 					var j = 0;
 					for(j = 0; j < renderNodes.length; j++){
-
 						if(renderLinks[i].node2 == renderNodes[j])
 							break;
 					}

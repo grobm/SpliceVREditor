@@ -49,13 +49,13 @@ GNU General Public License for more details.
 	};
 	SpliceVRAdd.prototype.pointEvent = function(){
 		if(this.pressed || this.contains(renderFrame.hudX, renderFrame.hudY)){
-			if(renderFrame.touch == 0)
+			if(renderFrame.type == EVENT_MOUSE)
 				document.body.style.cursor = 'pointer';
-			if(renderFrame.mode == 1)
+			if(renderFrame.mode == EVENT_DOWN)
 				this.pressed = true;
-			else if(renderFrame.mode == 2 && this.pressed)
+			else if(renderFrame.mode == EVENT_MOVE && this.pressed)
 				this.pressed = true;
-			else if(renderFrame.mode == 3 && this.pressed){
+			else if(renderFrame.mode == EVENT_UP && this.pressed){
 				this.pressed = false;
 				renderNodes.push(new SpliceVRNode());
 			}

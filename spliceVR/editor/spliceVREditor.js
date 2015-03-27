@@ -39,6 +39,14 @@ GNU General Public License for more details.
 	var mono = true;
 	var renderThread;
 
+	var EVENT_DOWN = 1;
+	var EVENT_MOVE = 2;
+	var EVENT_UP = 3;
+
+	var EVENT_MOUSE = 0;
+	var EVENT_TOUCH = 1;
+
+
 	document.addEventListener("DOMContentLoaded", function(event) {
 		renderFrame = new SpliceVRFrame();
 		renderUtil = new SpliceVRUtil();
